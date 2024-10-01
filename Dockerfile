@@ -1,7 +1,7 @@
-# Use a base image
+# Image
 FROM ubuntu:24.04
 
-# Set environment variables
+# Environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
@@ -53,9 +53,7 @@ RUN git clone https://github.com/snort3/snort3.git && \
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Set up entrypoint
-ENTRYPOINT ["/usr/local/bin/snort"]
+ENTRYPOINT ["/bin/bash"]
 
+# Snort -> Libdaq
 ENV LD_LIBRARY_PATH=/usr/local/lib
-
-# Default command
-CMD ["--help"]
