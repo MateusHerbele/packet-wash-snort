@@ -1,8 +1,10 @@
+# Use a base image
 FROM ubuntu:24.04
 
+# Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     cmake \
     wget \
@@ -30,7 +32,7 @@ RUN apt-get update && apt-get install -y \
     uuid-dev \
     && apt-get clean
 
-# Libdaq
+# Build libdaq from source
 WORKDIR /usr/src
 RUN git clone https://github.com/snort3/libdaq.git && \
     cd libdaq && \
@@ -39,7 +41,7 @@ RUN git clone https://github.com/snort3/libdaq.git && \
     make install && \
     cd
 
-# Snort 3
+# Build and install Snort 3
 RUN git clone https://github.com/snort3/snort3.git && \
     cd snort3 && \
     ./configure_cmake.sh --prefix=/usr/local && \
@@ -50,7 +52,10 @@ RUN git clone https://github.com/snort3/snort3.git && \
 # Clean up
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Set up entrypoint
 ENTRYPOINT ["/usr/local/bin/snort"]
+
+ENV LD_LIBRARY_PATH=/usr/local/lib
 
 # Default command
 CMD ["--help"]
