@@ -30,6 +30,7 @@ RUN apt-get update && apt-get install -y \
     source-highlight \
     w3m \
     uuid-dev \
+    iproute2 \
     && apt-get clean
 
 # Build libdaq from source
