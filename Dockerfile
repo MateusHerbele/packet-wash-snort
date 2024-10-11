@@ -31,6 +31,8 @@ RUN apt-get update && apt-get install -y \
     w3m \
     uuid-dev \
     iproute2 \
+    tcpdump \
+    tcpreplay \
     && apt-get clean
 
 # Build libdaq from source
