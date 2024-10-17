@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
     tcpdump \
     tcpreplay \
+    python3 \
     && apt-get clean
 
 # Build libdaq from source
@@ -43,7 +44,12 @@ RUN git clone https://github.com/snort3/libdaq.git && \
     ./configure && \
     make install && \
     cd
-
+# Socket test 
+RUN git clone -n https://github.com/MateusHerbele/ids-ic.git && \
+    cd ids-ic && \
+    git checkout HEAD teste.py && \
+    cd
+    
 # Build and install Snort 3
 RUN git clone https://github.com/snort3/snort3.git && \
     cd snort3 && \
