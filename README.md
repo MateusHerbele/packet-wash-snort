@@ -15,4 +15,4 @@ snort -Q --daq afpacket -R <rules file> -i <interface> -A cmg
 ```
 ### Passive:
 ```
-snort -Q --daq afpacket -R <rules file> -i <interface> -A cmg
+snort --daq afpacket -R <rules file> -i <interface> -A cmg
