@@ -11,9 +11,9 @@
 #include <string.h>
 #include <sys/ioctl.h>
 
-#define CRC_POLYNOMIAL 0x04C11DB7 // Polinômio padrão do Ethernet
+#define CRC_POLYNOMIAL 0x04C11DB7 // Polinômio padrão da Ethernet
 
-int createSocket(char* interface) {
+int createSocket(char* interface){
     int raw_socket;
     struct sockaddr_ll socket_address;
     struct ifreq ifr;
@@ -51,18 +51,17 @@ int createSocket(char* interface) {
 uint32_t calc_crc(char* data, size_t data_size){
     uint32_t crc = 0xFFFFFFFF;
 
-    for (size_t i = 0; i < data_size; i++) {
+    for (size_t i = 0; i < data_size; i++){
         crc ^= (uint32_t)(data[i]) << 24;
 
-        for (int j = 0; j < 8; j++) {
-            if (crc & 0x80000000) {
+        for (int j = 0; j < 8; j++){
+            if (crc & 0x80000000){
                 crc = (crc << 1) ^ CRC_POLYNOMIAL;
-            } else {
+            }else{
                 crc <<= 1;
             }
         }
     }
-
     return ~crc;
 }
 
