@@ -11,6 +11,8 @@
 #include <string.h>
 #include <sys/ioctl.h>
 
+#define CRC_POLYNOMIAL 0x04C11DB7 // Polinômio padrão do Ethernet
+
 int createSocket(char* interface) {
     int raw_socket;
     struct sockaddr_ll socket_address;
@@ -46,6 +48,32 @@ int createSocket(char* interface) {
     return raw_socket;
 }
 
+uint32_t calc_crc(char* data, size_t data_size){
+    uint32_t crc = 0xFFFFFFFF;
+
+    for (size_t i = 0; i < data_size; i++) {
+        crc ^= (uint32_t)(data[i]) << 24;
+
+        for (int j = 0; j < 8; j++) {
+            if (crc & 0x80000000) {
+                crc = (crc << 1) ^ CRC_POLYNOMIAL;
+            } else {
+                crc <<= 1;
+            }
+        }
+    }
+
+    return ~crc;
+}
+
+uint32_t insert_crc(char* packet){
+    uint32_t crc = calc_crc(&packet[14], 20);
+    packet[34] = (crc >> 24) & 0xFF;
+    packet[35] = (crc >> 16) & 0xFF;
+    packet[36] = (crc >> 8) & 0xFF;
+    packet[37] = crc & 0xFF;
+}
+
 void package_size_corrected(char* packet){
     packet[16] = (20 >> 8) & 0xFF; // byte mais significativo
     packet[17] = 20 & 0xFF;        // byte menos significativo
@@ -68,16 +96,17 @@ void recalc_checksum(char* packet){
 }
 
 char* packet_wash(char* packet, u_int packet_size){
-    char* packet_washed = calloc(34, 1);
+    char* packet_washed = calloc(38, 1);
     if(packet_washed == NULL){
         perror("Falha ao alocar memória p/ packet_washed!");
         exit(1);
     }
-    for(int i = 0; i < 34; ++i)
+    for(int i = 0; i < 34; ++i) // 14 do frama ethernet e 20 do header ip
         packet_washed[i] = packet[i];
     
     package_size_corrected(packet_washed);
     recalc_checksum(packet_washed);
+    insert_crc(packet_washed);
 
     return packet_washed;
 }
@@ -110,11 +139,11 @@ int main(){
 
         packet_washed = packet_wash(buffer, buffer_size);
         printf("Package washed: %u \n", packet_number);
-        for(int i = 14; i < 34; ++i)
+        for(int i = 14; i < 38; ++i)
             printf("%02x ", (unsigned char)packet_washed[i]);
         printf("\n");
 
-        bytes_sent = sendto(raw_socket, packet_washed, 34, 0, (struct sockaddr*)&saddr, sizeof(saddr));  
+        bytes_sent = sendto(raw_socket, packet_washed, 38, 0, (struct sockaddr*)&saddr, sizeof(saddr));  
         if(bytes_sent == -1){
             perror("Erro ao enviar dados!\n");
             exit(1);
