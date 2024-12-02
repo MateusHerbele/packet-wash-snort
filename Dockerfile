@@ -46,6 +46,9 @@ RUN git clone https://github.com/snort3/libdaq.git && \
 
 # Packets to test 
 RUN git clone https://github.com/StopDDoS/packet-captures.git
+
+# Objects to use in tests
+RUN git clone https://github.com/MateusHerbele/packet-wash-snort.git
     
 # Build and install Snort 3
 RUN git clone https://github.com/snort3/snort3.git && \
