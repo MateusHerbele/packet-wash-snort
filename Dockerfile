@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
     tcpdump \
     tcpreplay \
+    nano \
     && apt-get clean
 
 # Build libdaq from source
@@ -47,16 +48,20 @@ RUN git clone https://github.com/snort3/libdaq.git && \
 # Packets to test 
 RUN git clone https://github.com/StopDDoS/packet-captures.git
 
-# Objects to use in tests
-RUN git clone https://github.com/MateusHerbele/packet-wash-snort.git
-    
 # Build and install Snort 3
 RUN git clone https://github.com/snort3/snort3.git && \
-    cd snort3 && \
-    ./configure_cmake.sh --prefix=/usr/local && \
-    cd build && \
-    make -j$(nproc) && \
-    make install
+cd snort3 && \
+./configure_cmake.sh --prefix=/usr/local && \
+cd build && \
+make -j$(nproc) && \
+make install && \
+cd
+
+# Objects to use in tests
+RUN git clone https://github.com/MateusHerbele/packet-wash-snort.git
+# Extract Snort rules to the appropriate location
+RUN tar -xvzf /usr/src/packet-wash-snort/snortrules-snapshot-31210.tar.gz -C /usr/src/snort3/lua
+
 
 # Clean up
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
