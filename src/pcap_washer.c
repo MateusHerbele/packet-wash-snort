@@ -38,18 +38,20 @@ void package_size_corrected(char* packet){
 
 void recalc_checksum(char* packet){
     uint32_t sum = 0;
+
     for(int i = 14; i < 34; i += 2){
-        if (i != 24)
-            sum += (packet[i] << 8) + packet[i + 1];
+        if (i != 24){ // Ignora os bytes do checksum (offsets 24 e 25)
+            sum += ((unsigned char)packet[i] << 8) + (unsigned char)packet[i + 1];
+        }
     }
 
-    while (sum > 0xFFFF){
+    while(sum > 0xFFFF){
         sum = (sum & 0xFFFF) + (sum >> 16);
     }
 
     uint16_t checksum = ~((uint16_t)sum);
-    packet[24] = (checksum >> 8) & 0xFF; // byte mais significativo
-    packet[25] = checksum & 0xFF;       // byte menos significativo
+    packet[24] = (checksum >> 8) & 0xFF; // Byte mais significativo
+    packet[25] = checksum & 0xFF;        // Byte menos significativo
 }
 
 char* packet_wash(char* packet, uint32_t packet_size){
