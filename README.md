@@ -6,7 +6,12 @@ docker build -t snort3-docker .
 ```
 ## To run docker:
 ```
-docker run --rm -it snort3-docker  
+sudo docker run --rm -itd --name snort-docker snort3-docker
+```
+## To exec docker:
+```
+docker exec -it snort-docker /bin/bash
+
 ```
 ## Running snort - using a single rule file:
 ### Inline:
